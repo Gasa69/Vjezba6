@@ -43,4 +43,103 @@ void pregledImena(const vector<string>& imena) {
     }
 }
 
- 
+void snimiUDatoteku(const vector<string>& imena) {
+    if (imena.empty()) {
+        throw runtime_error("Nema podataka za spremanje.");
+    }
+    cout << "Unesite naziv izlazne datoteke: ";
+    string fname;
+    cin >> fname;
+    ofstream out(fname);
+    if (!out.is_open()) {
+        throw runtime_error("Ne mogu otvoriti datoteku za pisanje.");
+    }
+
+    out << imena.size() << "\n";
+
+    for (auto const& ime : imena) {
+        out << ime << "\n";
+    }
+    out.close();
+    cout << "Podaci su uspješno spremljeni u '" << fname << "'\n";
+}
+
+void ucitajIzDatoteke(vector<string>& imena) {
+    cout << "Unesite naziv ulazne datoteke: ";
+    string fname;
+    cin >> fname;
+    ifstream in(fname);
+    if (!in.is_open()) {
+        throw runtime_error("Ne mogu otvoriti datoteku za čitanje.");
+    }
+
+    int N;
+    in >> N;
+    if (in.fail() || N < 1 || N >= 20) {
+        throw runtime_error("Neispravan broj imena u datoteci.");
+    }
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    vector<string> temp;
+    temp.reserve(N);
+    for (int i = 0; i < N; ++i) {
+        string ime;
+        if (!getline(in, ime)) {
+            throw runtime_error("Datoteka se neočekivano prekinula pri učenju imena.");
+        }
+        temp.push_back(ime);
+    }
+    imena = move(temp);
+    in.close();
+    cout << "Podaci su uspješno učitani iz '" << fname << "'\n";
+}
+
+int main() {
+    vector<string> imena;
+    int izbor = 0;
+
+    do {
+        cout << "\n=== IZBORNIK ===\n"
+             << "1) Unos imena\n"
+             << "2) Pregled imena\n"
+             << "3) Snimanje u datoteku\n"
+             << "4) Učitavanje iz datoteke\n"
+             << "5) Izlaz\n"
+             << "Odabir: ";
+        cin >> izbor;
+
+        try {
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                throw invalid_argument("Neispravan unos opcije.");
+            }
+
+            switch (izbor) {
+                case 1:
+                    unosImena(imena);
+                    break;
+                case 2:
+                    pregledImena(imena);
+                    break;
+                case 3:
+                    snimiUDatoteku(imena);
+                    break;
+                case 4:
+                    ucitajIzDatoteke(imena);
+                    break;
+                case 5:
+                    cout << "Izlaz iz programa.\n";
+                    break;
+                default:
+                    cout << "Nepoznata opcija, pokušajte ponovno.\n";
+            }
+        }
+        catch (const exception& e) {
+            cout << "Greška: " << e.what() << "\n";
+        }
+
+    } while (izbor != 5);
+
+    return 0;
+}

@@ -81,4 +81,80 @@ void ucitajIzDatoteke(vector<Student>& studenti) {
     ifstream datoteka(nazivDatoteke);
     if (!datoteka) throw runtime_error("Greška pri otvaranju datoteke!");
 
-    
+    int N;
+    datoteka >> N;
+
+    if (datoteka.fail() || N < 0) throw runtime_error("Neispravan format datoteke.");
+
+    studenti.clear();
+    for (int i = 0; i < N; i++) {
+        Student s;
+        datoteka >> s.ime >> s.prezime >> s.bodovi;
+        if (datoteka.fail()) throw runtime_error("Greška pri čitanju podataka.");
+        studenti.push_back(s);
+    }
+
+    cout << "Podaci su učitani iz datoteke." << endl;
+}
+
+void sortirajStudente(vector<Student>& studenti, bool uzlazno) {
+    if (studenti.empty()) throw runtime_error("Nema studenata za sortiranje.");
+
+    sort(studenti.begin(), studenti.end(), [uzlazno](const Student& a, const Student& b) {
+        return uzlazno ? a.bodovi < b.bodovi : a.bodovi > b.bodovi;
+    });
+
+    cout << "Studenti su sortirani." << endl;
+}
+
+int main() {
+    vector<Student> studenti;
+    int izbor;
+
+    do {
+        cout << "\nIzbornik:" << endl;
+        cout << "1. Unos studenata" << endl;
+        cout << "2. Ispis studenata" << endl;
+        cout << "3. Snimanje u datoteku" << endl;
+        cout << "4. Učitavanje iz datoteke" << endl;
+        cout << "5. Sortiranje (1 - uzlazno, 0 - silazno)" << endl;
+        cout << "6. Izlaz" << endl;
+        cout << "Odabir: ";
+        cin >> izbor;
+
+        try {
+            switch (izbor) {
+                case 1:
+                    unosStudenata(studenti);
+                    break;
+                case 2:
+                    ispisStudenata(studenti);
+                    break;
+                case 3:
+                    snimiUDatoteku(studenti);
+                    break;
+                case 4:
+                    ucitajIzDatoteke(studenti);
+                    break;
+                case 5: {
+                    bool uzlazno;
+                    cout << "Unesite 1 za uzlazno ili 0 za silazno sortiranje: ";
+                    cin >> uzlazno;
+                    if (cin.fail()) throw invalid_argument("Neispravan unos za sortiranje.");
+                    sortirajStudente(studenti, uzlazno);
+                    break;
+                }
+                case 6:
+                    cout << "Izlaz iz programa." << endl;
+                    break;
+                default:
+                    cout << "Neispravan unos!" << endl;
+            }
+        } catch (const exception& e) {
+            cout << "Greška: " << e.what() << endl;
+        }
+
+    } while (izbor != 6);
+
+    return 0;
+}
